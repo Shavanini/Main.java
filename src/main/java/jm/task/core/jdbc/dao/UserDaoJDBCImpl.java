@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.sql.DriverManager.getConnection;
+import static jm.task.core.jdbc.util.Util.getConnection;
 
 public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
@@ -18,8 +18,11 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
         try (Statement statement = getConnection().createStatement()) {
-            statement.executeUpdate("create table if not exists users (id bigint primary key auto_increment " +
-            "name varchar(255) not null," + "lastname varchar(255) not null," + " age tinyint not null)" );
+            statement.executeUpdate("create table if not exists users (id bigint primary key auto_increment," +
+                    " name varchar(255) not null," +
+                    " lastname varchar(255) not null," +
+                    " age tinyint not null)");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -37,12 +40,15 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement("insert into users (name,lastname,age)")) {
+        try (PreparedStatement preparedStatement =
+                     getConnection().prepareStatement("insert into users (name,lastName,age) values(?,?,?)")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
-            preparedStatement.setString(3, age);
+            preparedStatement.setByte(3, age);
+
             preparedStatement.executeUpdate();
-            System.out.println("User с именем - " + name + " добавлен в базу данных");
+            System.out.println("User с именем – " + name + " добавлен в базу данных");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -50,9 +56,11 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement("delete from users where id = ?")){
-            preparedStatement.setLong(1,id);
+        try (PreparedStatement preparedStatement =
+                     getConnection().prepareStatement("delete from users where id = ?")) {
+            preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -61,7 +69,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        try (Statement statement = getConnection().createStatement()){
+        try (Statement statement = getConnection().createStatement()) {
             ResultSet resultSet = statement.executeQuery("select * from users");
 
             while (resultSet.next()) {
@@ -76,6 +84,7 @@ public class UserDaoJDBCImpl implements UserDao {
             e.printStackTrace();
         }
         return users;
+
     }
 
     public void cleanUsersTable() {
@@ -84,6 +93,5 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 }
