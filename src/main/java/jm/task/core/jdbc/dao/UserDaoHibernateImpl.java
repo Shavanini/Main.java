@@ -10,7 +10,8 @@ import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
 
-    public UserDaoHibernateImpl() { }
+    public UserDaoHibernateImpl() {
+    }
 
     @Override
     public void createUsersTable() {
@@ -49,8 +50,10 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction tx = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            User u = session.get(User.class, id);
-            if (u != null) session.remove(u);
+            User user = session.get(User.class, id);
+            if (user != null) {
+                session.remove(user);
+            }
             tx.commit();
         } catch (Exception e) {
             rollbackQuiet(tx);
@@ -73,7 +76,7 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction tx = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            session.createNativeQuery("delete from User").executeUpdate();
+            session.createNativeQuery("DELETE FROM users").executeUpdate();
             tx.commit();
         } catch (Exception e) {
             rollbackQuiet(tx);
@@ -81,7 +84,6 @@ public class UserDaoHibernateImpl implements UserDao {
         }
     }
 
-    // helpers
     private void execNative(String sql, String where) {
         Transaction tx = null;
         try (Session session = Util.getSessionFactory().openSession()) {
@@ -95,6 +97,11 @@ public class UserDaoHibernateImpl implements UserDao {
     }
 
     private void rollbackQuiet(Transaction tx) {
-        if (tx != null) try { tx.rollback(); } catch (Exception ignored) {}
+        if (tx != null) {
+            try {
+                tx.rollback();
+            } catch (Exception ignored) {
+            }
+        }
     }
 }
